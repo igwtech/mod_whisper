@@ -297,7 +297,7 @@ void ws_asr_thread_launch(whisper_t *tech_pvt, switch_memory_pool_t *pool)
 // thread for handling websocket connection
 void *SWITCH_THREAD_FUNC ws_asr_thread_run(switch_thread_t *thread, void *obj) {
 	whisper_t *context = (whisper_t *) obj;
-	int n; 
+	int n=0; 
 	while (context->started == WS_STATE_STARTED && n >= 0) {
 		n = lws_service(context->lws_context, WS_TIMEOUT_MS);
 	}
