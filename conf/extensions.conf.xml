@@ -1,0 +1,10 @@
+<extension name="asr_demo">
+    <condition field="destination_number" expression="1888">
+		<action application="answer"/>
+        <action application="set" data="tts_engine=whisper"/>
+        <action application="set" data="tts_voice=mustafa"/>
+		<action application="sleep" data="500" />
+		<action application="play_and_detect_speech" data="say:Do you want takeaway or home delivery? detect:whisper {channel-uuid=${uuid},start-input-timers=false}takeaway or delivery"/>
+        <action application="log" data="CRIT ${detect_speech_result}!"/>-->
+    </condition>
+</extension>
