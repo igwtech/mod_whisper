@@ -179,7 +179,7 @@ int callback_ws_asr(struct lws *wsi, enum lws_callback_reasons reason, void *use
 			switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_DEBUG, "WS receiving ASR data\n");
 			if (!lws_frame_is_binary(context->wsi)) {
 				switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_WARNING, "Text: %s \n", (char *)in);
-				//context->result_text = switch_safe_strdup((const char *)in); 
+				context->result_text = switch_safe_strdup((const char *)in); 
 			}
 
 			switch_mutex_lock(context->mutex);
