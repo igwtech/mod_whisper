@@ -346,9 +346,9 @@ static switch_status_t whisper_get_results(switch_asr_handle_t *ah, char **resul
 	if (switch_test_flag(context, ASRFLAG_RESULT_READY)) {
 		int is_partial = context->partial-- > 0 ? 1 : 0;
 
-		//*resultstr = switch_mprintf("{\"grammar\": \"%s\", \"text\": \"%s\", \"confidence\": %f}", context->grammar, context->result_text, context->result_confidence);
+		*resultstr = switch_mprintf("{\"grammar\": \"%s\", \"text\": \"%s\", \"confidence\": %f}", context->grammar, context->result_text, context->result_confidence);
 
-		*resultstr = context->result_text;
+		//*resultstr = context->result_text;
 
 		switch_log_printf(SWITCH_CHANNEL_UUID_LOG(context->channel_uuid), SWITCH_LOG_NOTICE, "%sResult: %s\n", is_partial ? "Partial " : "Final ", *resultstr);
 

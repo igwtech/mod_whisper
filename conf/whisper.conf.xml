@@ -3,5 +3,6 @@
     <param name="asr-server-url" value="ws://127.0.0.1:2700"/>
     <param name="tts-server-url" value="ws://127.0.0.1:2600"/>
     <param name="return-json" value="1"/>
+    <param name="auto_reload" value="1"/>
   </settings>
 </configuration>
