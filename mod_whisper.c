@@ -371,9 +371,6 @@ static switch_status_t whisper_get_results(switch_asr_handle_t *ah, char **resul
 		switch_log_printf(SWITCH_CHANNEL_UUID_LOG(context->channel_uuid), SWITCH_LOG_ERROR, "Unexpected call to asr_get_results - no results to return!\n");
 		status = SWITCH_STATUS_FALSE;
 	}
-	switch_mutex_lock(context->mutex);
-	switch_safe_free(context->result_text);
-	switch_mutex_unlock(context->mutex);
 	
 	if (status == SWITCH_STATUS_SUCCESS) {
 		switch_set_flag(context, ASRFLAG_RETURNED_RESULT);
