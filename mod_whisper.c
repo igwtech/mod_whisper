@@ -83,13 +83,13 @@ static switch_status_t whisper_open(switch_asr_handle_t *ah, const char *codec, 
 	codec = "L16";
 	ah->codec = switch_core_strdup(ah->memory_pool, codec);
 
-	asr_server = switch_core_strdup(whisper_globals.pool, whisper_globals.asr_server_url);
+	asr_server = switch_core_strdup(context->pool, whisper_globals.asr_server_url);
 
 	if (rate > 16000) {
 		ah->native_rate = 16000;
 	}
 
-	switch_mutex_init(&context->mutex, SWITCH_MUTEX_NESTED, whisper_globals.pool);
+	switch_mutex_init(&context->mutex, SWITCH_MUTEX_NESTED, context->pool);
 
 	if (switch_buffer_create_dynamic(&context->audio_buffer, AUDIO_BLOCK_SIZE, AUDIO_BLOCK_SIZE, 0) != SWITCH_STATUS_SUCCESS) {
 		switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR, "Failed to create the audio buffer\n");
@@ -179,7 +179,7 @@ static switch_status_t whisper_close(switch_asr_handle_t *ah, switch_asr_flag_t 
 	
 	switch_buffer_destroy(&context->audio_buffer);
 	switch_set_flag(ah, SWITCH_ASR_FLAG_CLOSED);
-	
+	switch_safe_free(context->result_text);	
 	switch_mutex_unlock(context->mutex);
 	return status;
 }
@@ -342,13 +342,13 @@ static switch_status_t whisper_get_results(switch_asr_handle_t *ah, char **resul
 	if (switch_test_flag(context, ASRFLAG_RETURNED_RESULT) || switch_test_flag(ah, SWITCH_ASR_FLAG_CLOSED)) {
 		return SWITCH_STATUS_FALSE;
 	}
-
+	switch_mutex_lock(context->mutex);	
 	if (switch_test_flag(context, ASRFLAG_RESULT_READY)) {
 		int is_partial = context->partial-- > 0 ? 1 : 0;
 
-		*resultstr = switch_mprintf("{\"grammar\": \"%s\", \"text\": \"%s\", \"confidence\": %f}", context->grammar, context->result_text, context->result_confidence);
+		//*resultstr = switch_mprintf("{\"grammar\": \"%s\", \"text\": \"%s\", \"confidence\": %f}", context->grammar, context->result_text, context->result_confidence);
 
-		//*resultstr = context->result_text;
+		*resultstr =  switch_safe_strdup(context->result_text);
 
 		switch_log_printf(SWITCH_CHANNEL_UUID_LOG(context->channel_uuid), SWITCH_LOG_NOTICE, "%sResult: %s\n", is_partial ? "Partial " : "Final ", *resultstr);
 
@@ -371,12 +371,14 @@ static switch_status_t whisper_get_results(switch_asr_handle_t *ah, char **resul
 		switch_log_printf(SWITCH_CHANNEL_UUID_LOG(context->channel_uuid), SWITCH_LOG_ERROR, "Unexpected call to asr_get_results - no results to return!\n");
 		status = SWITCH_STATUS_FALSE;
 	}
-
+	switch_safe_free(context->result_text);
+	context->result_text = NULL;
+	switch_mutex_unlock(context->mutex);
 	if (status == SWITCH_STATUS_SUCCESS) {
 		switch_set_flag(context, ASRFLAG_RETURNED_RESULT);
 		switch_clear_flag(context, ASRFLAG_READY);
 	}
-
+	
 	return status;
 }
 
